@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LexiFlow // Vocabulary Mastery Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #111827;
+      --surface-card: rgba(17, 24, 39, 0.7);
+      --surface-hover: rgba(31, 41, 55, 0.8);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 102, 241, 0.5);
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-subtle: #64748b;
+      
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.35);
+      --accent: #38bdf8;
+      
+      --green-bg: rgba(16, 185, 129, 0.12);
+      --green-border: rgba(16, 185, 129, 0.3);
+      --green-text: #34d399;
+      
+      --yellow-bg: rgba(245, 158, 11, 0.12);
+      --yellow-border: rgba(245, 158, 11, 0.3);
+      --yellow-text: #fbbf24;
+      
+      --red-bg: rgba(239, 68, 68, 0.12);
+      --red-border: rgba(239, 68, 68, 0.3);
+      --red-text: #f87171;
+
+      --blue-bg: rgba(56, 189, 248, 0.12);
+      --blue-border: rgba(56, 189, 248, 0.3);
+      --blue-text: #38bdf8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Plus Jakarta Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 32px 20px; line-height: 1.5; min-height: 100vh; background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.05) 0%, transparent 40%); }
+    .container { max-width: 1320px; margin: 0 auto; }
+
+    /* Top Navigation Header */
+    header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .brand-title { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .brand-tag { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+
+    /* Modern Buttons */
+    .btn { padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; box-shadow: 0 4px 14px var(--primary-glow); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); }
+    .btn-secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text-main); backdrop-filter: blur(8px); }
+    .btn-secondary:hover { background: var(--surface-hover); border-color: rgba(255, 255, 255, 0.2); }
+    .btn-warning { background: var(--yellow-bg); border-color: var(--yellow-border); color: var(--yellow-text); }
+    .btn-warning:hover { background: rgba(245, 158, 11, 0.2); }
+    .btn-danger { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
+
+    /* Auth Badge Indicator */
+    .auth-banner { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .auth-public { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--text-muted); }
+    .auth-tutor { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green-text); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2); }
+
+    /* Bento Analytics Grid */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .kpi-card { background: var(--surface-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); position: relative; overflow: hidden; transition: transform 0.2s; }
+    .kpi-card:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.15); }
+    .kpi-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .kpi-value { font-size: 32px; font-weight: 800; margin: 8px 0 4px; font-family: "JetBrains Mono", monospace; letter-spacing: -1px; }
+    .gauge-bg { background: rgba(255, 255, 255, 0.06); border-radius: 999px; height: 6px; margin-top: 14px; overflow: hidden; }
+    .gauge-fill { background: linear-gradient(90deg, #6366f1, #38bdf8); height: 100%; width: 0%; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 8px #38bdf8; }
+
+    /* Quick Add Panel (Tutor Exclusive) */
+    .quick-add-panel { background: rgba(99, 102, 241, 0.06); border: 1px solid var(--primary-glow); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; display: none; flex-wrap: wrap; gap: 12px; align-items: center; box-shadow: 0 8px 32px rgba(99, 102, 241, 0.1); }
+    .quick-add-panel.active { display: flex; }
+    .quick-add-panel strong { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #818cf8; }
+
+    /* Interactive Inputs & Selects */
+    .input-field, .filter-select { background: rgba(17, 24, 39, 0.8); border: 1px solid var(--border); border-radius: 10px; color: var(--text-main); font-size: 13px; font-weight: 500; outline: none; transition: 0.15s; }
+    .input-field { padding: 9px 14px; }
+    .filter-select { padding: 9px 14px; cursor: pointer; }
+    .input-field:focus, .filter-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+
+    /* Filter Deck */
+    .filter-card { background: var(--surface-card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 28px; backdrop-filter: blur(12px); }
+    .filter-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+    /* Month Accordion Cards */
+    .month-section { margin-bottom: 20px; background: var(--surface-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; backdrop-filter: blur(12px); transition: border-color 0.2s; }
+    .month-section:hover { border-color: rgba(255, 255, 255, 0.15); }
+    .month-summary { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; cursor: pointer; user-select: none; background: rgba(17, 24, 39, 0.4); border-bottom: 1px solid transparent; transition: background 0.15s; flex-wrap: wrap; gap: 14px; }
+    .month-summary:hover { background: rgba(31, 41, 55, 0.5); }
+    .month-section.expanded .month-summary { border-bottom-color: var(--border); background: rgba(31, 41, 55, 0.4); }
+    
+    .month-left { display: flex; align-items: center; gap: 14px; }
+    .toggle-icon { font-size: 13px; font-weight: 800; color: #818cf8; transition: transform 0.2s; }
+    .month-name { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    .month-meta { display: flex; gap: 18px; font-size: 13px; color: var(--text-muted); align-items: center; flex-wrap: wrap; }
+    
+    .meta-badge { font-weight: 700; padding: 4px 10px; border-radius: 999px; font-size: 12px; }
+    .meta-green { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+    .meta-yellow { background: var(--yellow-bg); color: var(--yellow-text); border: 1px solid var(--yellow-border); }
+    .meta-blue { font-family: "JetBrains Mono", monospace; color: var(--accent); font-weight: 700; }
+
+    /* Tables */
+    .month-content { display: none; }
+    .month-section.expanded .month-content { display: block; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px; }
+    th { background: rgba(0, 0, 0, 0.25); color: var(--text-subtle); font-size: 11px; text-transform: uppercase; padding: 12px 18px; border-bottom: 1px solid var(--border); font-weight: 700; letter-spacing: 0.8px; }
+    td { padding: 12px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    .word-text { font-weight: 800; font-size: 15px; color: #ffffff; letter-spacing: -0.2px; }
+
+    /* Inline Edit Fields */
+    .inline-edit { padding: 5px 10px; border: 1px solid transparent; border-radius: 6px; font-size: 13px; color: var(--text-muted); outline: none; background: transparent; transition: 0.15s; width: 100%; max-width: 140px; font-family: inherit; }
+    .editable .inline-edit:hover { border-color: var(--border); background: var(--surface); color: var(--text-main); cursor: text; }
+    .editable .inline-edit:focus { border-color: var(--primary); background: var(--surface); color: var(--text-main); box-shadow: 0 0 0 2px var(--primary-glow); }
+    .readonly .inline-edit { pointer-events: none; }
+
+    /* Evaluation Badges */
+    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 96px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; user-select: none; border: 1px solid transparent; transition: transform 0.1s, opacity 0.15s; }
+    .editable .badge { cursor: pointer; }
+    .editable .badge:hover { opacity: 0.9; transform: scale(1.02); }
+    .readonly .badge { cursor: default; }
+
+    .badge-mastered { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+    .badge-developing { background: var(--yellow-bg); border-color: var(--yellow-border); color: var(--yellow-text); }
+    .badge-notyet { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
+
+    /* Status Progress Pills */
+    .status-pill { display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; font-family: "JetBrains Mono", monospace; min-width: 80px; border: 1px solid transparent; }
+    .status-100 { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+    .status-partial { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue-text); }
+    .status-0 { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
+
+    .btn-del { display: none; background: transparent; border: none; color: #ef4444; font-size: 18px; font-weight: bold; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+    .btn-del:hover { background: var(--red-bg); }
+    .editable .btn-del { display: inline-block; }
+
+    /* Login Modal */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; z-index: 100; }
+    .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px; max-width: 380px; width: 100%; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
+    .modal-title { margin-bottom: 16px; font-size: 18px; font-weight: 800; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; }
+    .field input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: rgba(0, 0, 0, 0.3); color: white; }
+    .field input:focus { border-color: var(--primary); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+  </style>
+</head>
+<body class="readonly">
+
+<div class="container">
+  <header>
+    <div>
+      <h1 class="brand-title">Vocabulary Mastery Engine</h1>
+      <p class="brand-tag">Autonomous Spoken Dialogue & High-Frequency Dictation Tracking</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div id="authStatusBadge" class="auth-banner auth-public">Public Read-Only</div>
+      <button id="authBtn" class="btn btn-primary" onclick="openLoginModal()">Tutor Unlock</button>
+      <button class="btn btn-secondary" onclick="exportData()">Export Backup</button>
+    </div>
+  </header>
+
+  <!-- Top KPI Grid -->
+  <div class="dashboard-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Words In Syllabus</div>
+      <div class="kpi-value" id="stat-total">0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Fully Mastered (100%)</div>
+      <div class="kpi-value" id="stat-mastered" style="color: var(--green-text);">0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">In Progress (<100%)</div>
+      <div class="kpi-value" id="stat-progress" style="color: var(--yellow-text);">0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Weighted Curriculum Mastery</div>
+      <div class="kpi-value" id="stat-pct" style="color: var(--accent);">0%</div>
+      <div class="gauge-bg"><div id="gauge-fill" class="gauge-fill"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Active Learning Months</div>
+      <div class="kpi-value" id="stat-months">0</div>
+    </div>
+  </div>
+
+  <!-- Quick Add Bar (Tutor Only) -->
+  <div id="tutorAddPanel" class="quick-add-panel">
+    <strong>+ Add Vocabulary:</strong>
+    <input type="text" id="quickWord" class="input-field" placeholder="Target Word (e.g. apple)" style="flex:1; min-width:140px;">
+    <input type="text" id="quickMonth" class="input-field" placeholder="Month Group (e.g. Oct 2026)" style="width:160px;">
+    <input type="text" id="quickSource" class="input-field" placeholder="Source (e.g. School)" value="School" style="width:120px;">
+    <button class="btn btn-primary" onclick="handleQuickAdd()">Save Entry</button>
+  </div>
+
+  <!-- Multi-Filter Deck -->
+  <div class="filter-card">
+    <div class="filter-grid">
+      <input type="text" id="search" class="input-field" placeholder="Type to search word..." style="flex:1; min-width:180px;" oninput="render()">
+      
+      <select id="filterMonth" class="filter-select" onchange="render()">
+        <option value="all">All Months</option>
+      </select>
+
+      <select id="filterStatus" class="filter-select" onchange="render()">
+        <option value="all">Status: All</option>
+        <option value="incomplete">Needs Practice (< 100%)</option>
+        <option value="mastered">Mastered (100%)</option>
+        <option value="notyet">Not Yet Started (0%)</option>
+      </select>
+
+      <select id="filterC" class="filter-select" onchange="render()">
+        <option value="all">Comprehension (C): All</option>
+        <option value="Not Yet">C: Not Yet</option>
+        <option value="Developing">C: Developing</option>
+        <option value="Mastered">C: Mastered</option>
+      </select>
+
+      <select id="filterP" class="filter-select" onchange="render()">
+        <option value="all">Pronunciation & Recall (P): All</option>
+        <option value="Not Yet">P: Not Yet</option>
+        <option value="Developing">P: Developing</option>
+        <option value="Mastered">P: Mastered</option>
+      </select>
+
+      <select id="filterS" class="filter-select" onchange="render()">
+        <option value="all">Spelling (S): All</option>
+        <option value="Not Yet">S: Not Yet</option>
+        <option value="Developing">S: Developing</option>
+        <option value="Mastered">S: Mastered</option>
+      </select>
+
+      <button class="btn btn-warning" onclick="quickFilterIncomplete()">Focus Unfinished</button>
+      <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+      <button class="btn btn-secondary" onclick="expandAll(true)">Expand All</button>
+      <button class="btn btn-secondary" onclick="expandAll(false)">Collapse All</button>
+    </div>
+  </div>
+
+  <!-- Month Sections Container -->
+  <div id="monthsContainer"></div>
+</div>
+
+<!-- Modal Dialog -->
+<div id="loginModal" class="modal">
+  <div class="modal-box">
+    <h3 class="modal-title">Tutor Authentication</h3>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="authUsername" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="authPassword">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeLoginModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="attemptLogin()">Unlock Engine</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const CRED_USER = "virber";
+  const CRED_PASS = "zhangyuqi";
+  let isTutorLoggedIn = sessionStorage.getItem("tutor_authenticated") === "true";
+
+  const defaultWords = [
+    "a","I","am","an","at","be","by","do","go","he","in","is","it","me","my","no","of","on","so","to","up","us","we","all","and",
+    "are","bad","bag","bed","beg","big","bog","box","boy","bug","but","can","cat","dad","day","did","dog","dry","eat","fly","for","fun",
+    "had","has","hat","her","him","hit","hot","ice","man","may","mom","not","odd","old","out","pet","ran","red","run","say","sea","see",
+    "she","six","sky","sun","tan","ten","the","top","toy","you","baby","bike","book","care","cold","cook","draw","fast","fish","flat",
+    "game","good","hair","hand","have","help","hill","hold","home","idea","into","jump","kill","land","like","live","long","look","love",
+    "make","many","meal","meet","milk","must","over","play","read","ring","robe","shot","sing","star","step","swim","talk","this","time",
+    "trip","very","walk","wall","wash","wave","wild","will","your","bread","build","carry","child","dance","floor","green","group",
+    "laugh","learn","place","plant","share","short","skate","sleep","study","thick","thing","think","trade","visit","world","write",
+    "family","father","little","member","mother","puddle","school","splash","street","holiday","together","celebrate","grandparents"
+  ];
+
+  function getInitialData() {
+    return defaultWords.map(w => ({
+      word: w,
+      month: "Before 1/10/2026",
+      dayLearnt: "Before 1/10/2026",
+      lastChecked: "Before 1/10/2026",
+      source: "School",
+      m: "Mastered",
+      p: "Mastered",
+      s: "Mastered"
+    }));
+  }
+
+  let stored = localStorage.getItem("vocab_data_v11");
+  let vocabDB = stored ? JSON.parse(stored) : getInitialData();
+  let collapsedState = JSON.parse(localStorage.getItem("vocab_collapsed_v11") || "{}");
+
+  function saveToStorage() {
+    localStorage.setItem("vocab_data_v11", JSON.stringify(vocabDB));
+    localStorage.setItem("vocab_collapsed_v11", JSON.stringify(collapsedState));
+  }
+
+  function updateAuthUI() {
+    const authBtn = document.getElementById("authBtn");
+    const authBadge = document.getElementById("authStatusBadge");
+    const addPanel = document.getElementById("tutorAddPanel");
+
+    if (isTutorLoggedIn) {
+      document.body.className = "editable";
+      authBadge.className = "auth-banner auth-tutor";
+      authBadge.innerText = "Tutor Workspace Active";
+      authBtn.innerText = "Lock Engine";
+      authBtn.className = "btn btn-danger";
+      authBtn.onclick = logout;
+      addPanel.classList.add("active");
+    } else {
+      document.body.className = "readonly";
+      authBadge.className = "auth-banner auth-public";
+      authBadge.innerText = "Public Read-Only";
+      authBtn.innerText = "Tutor Unlock";
+      authBtn.className = "btn btn-primary";
+      authBtn.onclick = openLoginModal;
+      addPanel.classList.remove("active");
+    }
+  }
+
+  function openLoginModal() {
+    document.getElementById("authUsername").value = "";
+    document.getElementById("authPassword").value = "";
+    document.getElementById("loginModal").style.display = "flex";
+  }
+
+  function closeLoginModal() {
+    document.getElementById("loginModal").style.display = "none";
+  }
+
+  function attemptLogin() {
+    const u = document.getElementById("authUsername").value.trim();
+    const p = document.getElementById("authPassword").value.trim();
+
+    if (u === CRED_USER && p === CRED_PASS) {
+      isTutorLoggedIn = true;
+      sessionStorage.setItem("tutor_authenticated", "true");
+      closeLoginModal();
+      updateAuthUI();
+      render();
+    } else {
+      alert("Invalid tutor credentials.");
+    }
+  }
+
+  function logout() {
+    isTutorLoggedIn = false;
+    sessionStorage.removeItem("tutor_authenticated");
+    updateAuthUI();
+    render();
+  }
+
+  function scoreVal(val) {
+    if (val === "Mastered") return 1.0;
+    if (val === "Developing") return 0.5;
+    return 0.0;
+  }
+
+  function getWordPct(item) {
+    const totalScore = scoreVal(item.m) + scoreVal(item.p) + scoreVal(item.s);
+    return (totalScore / 3) * 100;
+  }
+
+  function formatProgressPct(pct, allMastered = false) {
+    if (pct <= 0) return "0%";
+    if (allMastered || pct >= 99.95) return "100%";
+    const capped = Math.min(pct, 99.9);
+    const halfFloored = Math.floor(capped * 2) / 2;
+    return (halfFloored % 1 === 0 ? halfFloored.toFixed(0) : halfFloored.toFixed(1)) + "%";
+  }
+
+  function getWordDisplay(pct) {
+    if (pct >= 99.9) return { text: "Mastered", cls: "status-100" };
+    if (pct <= 0) return { text: "Not Yet", cls: "status-0" };
+    return { text: formatProgressPct(pct), cls: "status-partial" };
+  }
+
+  function cycleValue(val) {
+    if (val === "Mastered") return "Developing";
+    if (val === "Developing") return "Not Yet";
+    return "Mastered";
+  }
+
+  function toggleBadge(index, key) {
+    if (!isTutorLoggedIn) return;
+    vocabDB[index][key] = cycleValue(vocabDB[index][key]);
+    vocabDB[index].lastChecked = new Date().toLocaleDateString();
+    saveToStorage();
+    render();
+  }
+
+  function updateField(index, field, value) {
+    if (!isTutorLoggedIn) return;
+    vocabDB[index][field] = value.trim();
+    saveToStorage();
+  }
+
+  function deleteWord(index) {
+    if (!isTutorLoggedIn) return;
+    const item = vocabDB[index];
+    if (confirm(`Remove "${item.word}" permanently?`)) {
+      vocabDB.splice(index, 1);
+      saveToStorage();
+      render();
+    }
+  }
+
+  function toggleSection(monthName) {
+    collapsedState[monthName] = !collapsedState[monthName];
+    saveToStorage();
+    render();
+  }
+
+  function expandAll(expand) {
+    const months = [...new Set(vocabDB.map(d => d.month))];
+    months.forEach(m => collapsedState[m] = !expand);
+    saveToStorage();
+    render();
+  }
+
+  function quickFilterIncomplete() {
+    document.getElementById("filterStatus").value = "incomplete";
+    document.getElementById("filterC").value = "all";
+    document.getElementById("filterP").value = "all";
+    document.getElementById("filterS").value = "all";
+    render();
+  }
+
+  function resetFilters() {
+    document.getElementById("search").value = "";
+    document.getElementById("filterMonth").value = "all";
+    document.getElementById("filterStatus").value = "all";
+    document.getElementById("filterC").value = "all";
+    document.getElementById("filterP").value = "all";
+    document.getElementById("filterS").value = "all";
+    render();
+  }
+
+  function updateMonthDropdown(months) {
+    const select = document.getElementById("filterMonth");
+    const currentVal = select.value;
+    select.innerHTML = '<option value="all">All Months</option>';
+    months.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m;
+      opt.innerText = m;
+      if (m === currentVal) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  function handleQuickAdd() {
+    if (!isTutorLoggedIn) return;
+    const wordInput = document.getElementById("quickWord");
+    const monthInput = document.getElementById("quickMonth");
+    const sourceInput = document.getElementById("quickSource");
+
+    const word = wordInput.value.trim().toLowerCase();
+    let month = monthInput.value.trim();
+    const source = sourceInput.value.trim() || "School";
+
+    if (!word) {
+      alert("Please enter a target word.");
+      wordInput.focus();
+      return;
+    }
+
+    if (!month) {
+      const now = new Date();
+      month = now.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    const today = new Date().toLocaleDateString();
+
+    vocabDB.unshift({
+      word: word,
+      month: month,
+      dayLearnt: today,
+      lastChecked: today,
+      source: source,
+      m: "Developing",
+      p: "Not Yet",
+      s: "Developing"
+    });
+
+    collapsedState[month] = false;
+    saveToStorage();
+    wordInput.value = "";
+    wordInput.focus();
+    render();
+  }
+
+  document.getElementById("quickWord").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") handleQuickAdd();
+  });
+
+  function render() {
+    const query = document.getElementById("search").value.trim().toLowerCase();
+    const selMonth = document.getElementById("filterMonth").value;
+    const selStatus = document.getElementById("filterStatus").value;
+    const selC = document.getElementById("filterC").value;
+    const selP = document.getElementById("filterP").value;
+    const selS = document.getElementById("filterS").value;
+
+    const isFiltering = query || selMonth !== "all" || selStatus !== "all" || selC !== "all" || selP !== "all" || selS !== "all";
+
+    const container = document.getElementById("monthsContainer");
+    container.innerHTML = "";
+
+    const groups = {};
+    const allMonths = [];
+    vocabDB.forEach((item, originalIndex) => {
+      item._index = originalIndex;
+      item._pct = getWordPct(item);
+      if (!groups[item.month]) {
+        groups[item.month] = [];
+        allMonths.push(item.month);
+      }
+      groups[item.month].push(item);
+    });
+
+    updateMonthDropdown(allMonths);
+
+    let totalWords = vocabDB.length;
+    let fullyMasteredCount = vocabDB.filter(d => d._pct >= 99.9).length;
+    let inProgressCount = totalWords - fullyMasteredCount;
+    
+    let sumPercentages = vocabDB.reduce((sum, d) => sum + d._pct, 0);
+    let overallRawPct = totalWords === 0 ? 0 : (sumPercentages / totalWords);
+    let overallText = formatProgressPct(overallRawPct, inProgressCount === 0);
+
+    document.getElementById("stat-total").innerText = totalWords;
+    document.getElementById("stat-mastered").innerText = fullyMasteredCount;
+    document.getElementById("stat-progress").innerText = inProgressCount;
+    document.getElementById("stat-pct").innerText = overallText;
+    document.getElementById("gauge-fill").style.width = overallRawPct + "%";
+    document.getElementById("stat-months").innerText = Object.keys(groups).length;
+
+    Object.keys(groups).forEach(month => {
+      if (selMonth !== "all" && month !== selMonth) return;
+
+      const items = groups[month];
+      const filtered = items.filter(i => {
+        if (query && !i.word.toLowerCase().includes(query)) return false;
+        if (selStatus === "incomplete" && i._pct >= 99.9) return false;
+        if (selStatus === "mastered" && i._pct < 99.9) return false;
+        if (selStatus === "notyet" && i._pct > 0) return false;
+        if (selC !== "all" && i.m !== selC) return false;
+        if (selP !== "all" && i.p !== selP) return false;
+        if (selS !== "all" && i.s !== selS) return false;
+        return true;
+      });
+
+      if (isFiltering && filtered.length === 0) return;
+
+      const monthFullyMastered = items.filter(d => d._pct >= 99.9).length;
+      const monthSumPct = items.reduce((sum, d) => sum + d._pct, 0);
+      const monthRawPct = items.length === 0 ? 0 : (monthSumPct / items.length);
+      const monthDisplayPct = formatProgressPct(monthRawPct, monthFullyMastered === items.length);
+
+      const isExpanded = isFiltering ? true : !collapsedState[month];
+
+      const section = document.createElement("div");
+      section.className = `month-section ${isExpanded ? "expanded" : ""}`;
+
+      section.innerHTML = `
+        <div class="month-summary" onclick="toggleSection('${month}')">
+          <div class="month-left">
+            <span class="toggle-icon">${isExpanded ? "▼" : "▶"}</span>
+            <span class="month-name">${month}</span>
+          </div>
+          <div class="month-meta">
+            <span><strong>${filtered.length}</strong>${isFiltering ? ' matching' : ''} words</span>
+            <span class="meta-badge meta-green">${monthFullyMastered} Mastered</span>
+            <span class="meta-badge meta-yellow">${items.length - monthFullyMastered} In Progress</span>
+            <span class="meta-blue">${monthDisplayPct} Score</span>
+          </div>
+        </div>
+        <div class="month-content">
+          <table>
+            <thead>
+              <tr>
+                <th>Word</th>
+                <th>Day Learnt</th>
+                <th>Last Checked</th>
+                <th>Source</th>
+                <th>Comprehension (C)</th>
+                <th>Pronunciation & Recall (P)</th>
+                <th>Spelling (S)</th>
+                <th>Completion</th>
+                ${isTutorLoggedIn ? '<th></th>' : ''}
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(item => {
+                const disp = getWordDisplay(item._pct);
+                return `
+                  <tr>
+                    <td class="word-text">${item.word}</td>
+                    <td>
+                      <input type="text" class="inline-edit" value="${item.dayLearnt}" ${isTutorLoggedIn ? '' : 'readonly'} onchange="updateField(${item._index}, 'dayLearnt', this.value)">
+                    </td>
+                    <td>
+                      <input type="text" class="inline-edit" value="${item.lastChecked}" ${isTutorLoggedIn ? '' : 'readonly'} onchange="updateField(${item._index}, 'lastChecked', this.value)">
+                    </td>
+                    <td>
+                      <input type="text" class="inline-edit" value="${item.source}" ${isTutorLoggedIn ? '' : 'readonly'} onchange="updateField(${item._index}, 'source', this.value)">
+                    </td>
+                    <td><span class="badge ${badgeClass(item.m)}" onclick="toggleBadge(${item._index}, 'm')">${item.m}</span></td>
+                    <td><span class="badge ${badgeClass(item.p)}" onclick="toggleBadge(${item._index}, 'p')">${item.p}</span></td>
+                    <td><span class="badge ${badgeClass(item.s)}" onclick="toggleBadge(${item._index}, 's')">${item.s}</span></td>
+                    <td><span class="status-pill ${disp.cls}">${disp.text}</span></td>${isTutorLoggedIn ? `<td><button class="btn-del" title="Delete word" onclick="deleteWord(${item._index})">×</button></td>` : ''}
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+      container.appendChild(section);
+    });
+  }
+
+  function badgeClass(val) {
+    if (val === "Mastered") return "badge-mastered";
+    if (val === "Developing") return "badge-developing";
+    return "badge-notyet";
+  }
+
+  function exportData() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(vocabDB, null, 2));
+    const dl = document.createElement('a');
+    dl.setAttribute("href", dataStr);
+    dl.setAttribute("download", `LexiFlow_Backup_${new Date().toISOString().slice(0,10)}.json`);
+    dl.click();
+  }
+
+  updateAuthUI();
+  render();
+</script>
+</body>
+</html>
