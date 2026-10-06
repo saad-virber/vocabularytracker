@@ -326,7 +326,7 @@
   let docRef = null;
   let isCloudSynced = false;
 
-  function initCloudSync() {
+function initCloudSync() {
     const indicator = document.getElementById("syncIndicator");
 
     try {
@@ -334,57 +334,75 @@
         firebase.initializeApp(firebaseConfig);
       }
       db = firebase.firestore();
-      
-      // Enable Firestore offline persistence for instant local reads
-      db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
-      
       docRef = db.collection("vocabulary").doc("sharedList");
 
-      // Real-time synchronization stream
-      docRef.onSnapshot((doc) => {
-        if (doc.exists && Array.isArray(doc.data().words) && doc.data().words.length > 0) {
-          vocabDB = doc.data().words;
-          localStorage.setItem("vocab_data_v12", JSON.stringify(vocabDB));
-        } else {
-          // Only seed initial default data once if the database is genuinely empty
-          docRef.set({ words: vocabDB }, { merge: true });
+      // Listen for remote updates
+      docRef.onSnapshot({ includeMetadataChanges: false }, (doc) => {
+        if (doc.exists) {
+          const cloudWords = doc.data().words;
+          if (Array.isArray(cloudWords) && cloudWords.length > 0) {
+            vocabDB = cloudWords;
+            localStorage.setItem("vocab_data_v12", JSON.stringify(vocabDB));
+            indicator.innerText = "Cloud: Connected (Live)";
+            indicator.style.color = "#34d399";
+            render();
+            return;
+          }
         }
-        isCloudSynced = true;
-        indicator.innerText = "Cloud: Connected (Live)";
-        indicator.style.color = "#34d399";
-        render();
+        
+        // Only write defaults if cloud document is genuinely missing
+        docRef.set({ words: vocabDB }, { merge: true })
+          .then(() => {
+            indicator.innerText = "Cloud: Connected (Live)";
+            indicator.style.color = "#34d399";
+          })
+          .catch(e => console.error("Initial cloud seed failed:", e));
       }, (error) => {
         console.error("Firestore sync error:", error);
-        indicator.innerText = "Cloud: Syncing (Cached)";
-        indicator.style.color = "#fbbf24";
+        indicator.innerText = "Cloud: Permission / Network Error";
+        indicator.style.color = "#f87171";
       });
     } catch (e) {
-      console.error(e);
-      indicator.innerText = "Cloud: Offline";
+      console.error("Cloud init failed:", e);
+      indicator.innerText = "Cloud: Failed";
       indicator.style.color = "#f87171";
     }
   }
 
   function saveToStorage() {
-    // 1. Save locally instantly
-    localStorage.setItem("vocab_collapsed_v12", JSON.stringify(collapsedState));
-    localStorage.setItem("vocab_data_v12", JSON.stringify(vocabDB));
+    // 1. Strip temporary underscore properties (_index, _pct) before saving
+    const cleanDB = vocabDB.map(({ word, month, dayLearnt, lastChecked, source, m, p, s }) => ({
+      word,
+      month,
+      dayLearnt,
+      lastChecked,
+      source,
+      m,
+      p,
+      s
+    }));
 
-    // 2. Push to Firestore in background
+    // 2. Save locally
+    localStorage.setItem("vocab_collapsed_v12", JSON.stringify(collapsedState));
+    localStorage.setItem("vocab_data_v12", JSON.stringify(cleanDB));
+
+    // 3. Push cleaned payload to Firestore
     if (docRef) {
       const indicator = document.getElementById("syncIndicator");
       indicator.innerText = "Cloud: Saving...";
       indicator.style.color = "#38bdf8";
 
-      docRef.set({ words: vocabDB }, { merge: true })
+      docRef.set({ words: cleanDB })
         .then(() => {
           indicator.innerText = "Cloud: Connected (Live)";
           indicator.style.color = "#34d399";
+          console.log("Successfully synced to cloud!");
         })
         .catch(err => {
           console.error("Cloud push failed:", err);
-          indicator.innerText = "Cloud: Retry Queued";
-          indicator.style.color = "#fbbf24";
+          indicator.innerText = "Cloud: Save Failed";
+          indicator.style.color = "#f87171";
+          alert("Cloud save failed: " + err.message);
         });
     }
   }
