@@ -394,30 +394,40 @@
     }));
   }
 
+// 1. Immediately recover existing saved words from local storage so nothing is lost on reload
   let collapsedState = JSON.parse(localStorage.getItem("vocab_collapsed_v12") || "{}");
-  let vocabDB = getInitialData();
+  let localSaved = localStorage.getItem("vocab_data_v12");
+  let vocabDB = localSaved ? JSON.parse(localSaved) : getInitialData();
 
+  // 2. Always persist locally FIRST, then attempt cloud sync
   function saveToStorage() {
+    localStorage.setItem("vocab_data_v12", JSON.stringify(vocabDB));
     localStorage.setItem("vocab_collapsed_v12", JSON.stringify(collapsedState));
+
     studentDocRef.set({
       words: vocabDB,
       updatedAt: new Date().toISOString()
+    }).then(() => {
+      console.log("Cloud sync successful");
     }).catch(err => {
-      console.error("Firestore sync error:", err);
-      alert("Error updating cloud: " + err.message);
+      console.warn("Cloud sync deferred / failed:", err.message);
+      // Even if cloud sync fails, local storage keeps your edits intact!
     });
   }
 
-  // Real-time synchronization
+  // 3. Synchronize with Firestore when online and valid
   studentDocRef.onSnapshot((doc) => {
-    if (doc.exists && doc.data().words) {
+    if (doc.exists && doc.data().words && Array.isArray(doc.data().words)) {
       vocabDB = doc.data().words;
+      // Keep local storage mirroring cloud
+      localStorage.setItem("vocab_data_v12", JSON.stringify(vocabDB));
       render();
-    } else {
+    } else if (!doc.exists) {
+      // First cloud initialization
       saveToStorage();
     }
   }, (err) => {
-    console.error("Firestore listener error:", err);
+    console.error("Firebase connection status:", err.message);
   });
 
   function updateAuthUI() {
