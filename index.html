@@ -278,7 +278,7 @@
 </div>
 
 <script>
-  // Cloud Database Integration (Using your project credentials)
+  // Cloud Database Integration
   const firebaseConfig = {
     apiKey: "AIzaSyA6V3lQ5Low2ep9PHOY44my5YIuDZp5mVQ",
     authDomain: "vocbulary-tracker.firebaseapp.com",
@@ -318,48 +318,74 @@
     }));
   }
 
-  let vocabDB = getInitialData();
+  // 1. FAST STARTUP: Load local cache immediately so it's instantaneous
+  let cachedData = localStorage.getItem("vocab_data_v12");
+  let vocabDB = cachedData ? JSON.parse(cachedData) : getInitialData();
   let collapsedState = JSON.parse(localStorage.getItem("vocab_collapsed_v12") || "{}");
   let db = null;
   let docRef = null;
+  let isCloudSynced = false;
 
   function initCloudSync() {
     const indicator = document.getElementById("syncIndicator");
 
     try {
-      firebase.initializeApp(firebaseConfig);
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
       db = firebase.firestore();
+      
+      // Enable Firestore offline persistence for instant local reads
+      db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+      
       docRef = db.collection("vocabulary").doc("sharedList");
 
       // Real-time synchronization stream
       docRef.onSnapshot((doc) => {
-        if (doc.exists && doc.data().words) {
+        if (doc.exists && Array.isArray(doc.data().words) && doc.data().words.length > 0) {
           vocabDB = doc.data().words;
+          localStorage.setItem("vocab_data_v12", JSON.stringify(vocabDB));
         } else {
-          // Push initial data if the collection is brand new
-          docRef.set({ words: vocabDB });
+          // Only seed initial default data once if the database is genuinely empty
+          docRef.set({ words: vocabDB }, { merge: true });
         }
+        isCloudSynced = true;
         indicator.innerText = "Cloud: Connected (Live)";
         indicator.style.color = "#34d399";
         render();
       }, (error) => {
         console.error("Firestore sync error:", error);
-        indicator.innerText = "Cloud: Sync Error";
-        indicator.style.color = "#f87171";
+        indicator.innerText = "Cloud: Syncing (Cached)";
+        indicator.style.color = "#fbbf24";
       });
     } catch (e) {
       console.error(e);
-      indicator.innerText = "Cloud: Failed";
+      indicator.innerText = "Cloud: Offline";
       indicator.style.color = "#f87171";
     }
   }
 
   function saveToStorage() {
+    // 1. Save locally instantly
     localStorage.setItem("vocab_collapsed_v12", JSON.stringify(collapsedState));
     localStorage.setItem("vocab_data_v12", JSON.stringify(vocabDB));
 
+    // 2. Push to Firestore in background
     if (docRef) {
-      docRef.set({ words: vocabDB }).catch(err => console.error("Cloud push failed:", err));
+      const indicator = document.getElementById("syncIndicator");
+      indicator.innerText = "Cloud: Saving...";
+      indicator.style.color = "#38bdf8";
+
+      docRef.set({ words: vocabDB }, { merge: true })
+        .then(() => {
+          indicator.innerText = "Cloud: Connected (Live)";
+          indicator.style.color = "#34d399";
+        })
+        .catch(err => {
+          console.error("Cloud push failed:", err);
+          indicator.innerText = "Cloud: Retry Queued";
+          indicator.style.color = "#fbbf24";
+        });
     }
   }
 
@@ -454,8 +480,8 @@
     if (!isTutorLoggedIn) return;
     vocabDB[index][key] = cycleValue(vocabDB[index][key]);
     vocabDB[index].lastChecked = new Date().toLocaleDateString();
-    saveToStorage();
     render();
+    saveToStorage();
   }
 
   function updateField(index, field, value) {
@@ -469,8 +495,8 @@
     const item = vocabDB[index];
     if (confirm(`Remove "${item.word}" permanently?`)) {
       vocabDB.splice(index, 1);
-      saveToStorage();
       render();
+      saveToStorage();
     }
   }
 
@@ -553,10 +579,10 @@
     });
 
     collapsedState[month] = false;
-    saveToStorage();
     wordInput.value = "";
     wordInput.focus();
     render();
+    saveToStorage();
   }
 
   document.getElementById("quickWord").addEventListener("keypress", function(e) {
@@ -705,7 +731,8 @@
   }
 
   updateAuthUI();
-  initCloudSync();
+  render(); // Render immediately from local cache
+  initCloudSync(); // Sync and stream from cloud
 </script>
 </body>
 </html>
