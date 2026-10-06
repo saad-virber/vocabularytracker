@@ -7,6 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase Cloud SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
   <style>
     :root {
       --bg: #090d16;
@@ -45,12 +50,10 @@
     body { background-color: var(--bg); color: var(--text-main); padding: 32px 20px; line-height: 1.5; min-height: 100vh; background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.05) 0%, transparent 40%); }
     .container { max-width: 1320px; margin: 0 auto; }
 
-    /* Top Navigation Header */
     header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
     .brand-title { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .brand-tag { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
 
-    /* Modern Buttons */
     .btn { padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; box-shadow: 0 4px 14px var(--primary-glow); }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); }
@@ -61,12 +64,11 @@
     .btn-danger { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
     .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
 
-    /* Auth Badge Indicator */
     .auth-banner { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
     .auth-public { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--text-muted); }
     .auth-tutor { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green-text); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2); }
+    .sync-status { font-size: 11px; color: var(--accent); margin-left: 8px; font-family: "JetBrains Mono", monospace; }
 
-    /* Bento Analytics Grid */
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 28px; }
     .kpi-card { background: var(--surface-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); position: relative; overflow: hidden; transition: transform 0.2s; }
     .kpi-card:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.15); }
@@ -75,22 +77,18 @@
     .gauge-bg { background: rgba(255, 255, 255, 0.06); border-radius: 999px; height: 6px; margin-top: 14px; overflow: hidden; }
     .gauge-fill { background: linear-gradient(90deg, #6366f1, #38bdf8); height: 100%; width: 0%; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 8px #38bdf8; }
 
-    /* Quick Add Panel (Tutor Exclusive) */
     .quick-add-panel { background: rgba(99, 102, 241, 0.06); border: 1px solid var(--primary-glow); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; display: none; flex-wrap: wrap; gap: 12px; align-items: center; box-shadow: 0 8px 32px rgba(99, 102, 241, 0.1); }
     .quick-add-panel.active { display: flex; }
     .quick-add-panel strong { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #818cf8; }
 
-    /* Interactive Inputs & Selects */
     .input-field, .filter-select { background: rgba(17, 24, 39, 0.8); border: 1px solid var(--border); border-radius: 10px; color: var(--text-main); font-size: 13px; font-weight: 500; outline: none; transition: 0.15s; }
     .input-field { padding: 9px 14px; }
     .filter-select { padding: 9px 14px; cursor: pointer; }
     .input-field:focus, .filter-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
 
-    /* Filter Deck */
     .filter-card { background: var(--surface-card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 28px; backdrop-filter: blur(12px); }
     .filter-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
-    /* Month Accordion Cards */
     .month-section { margin-bottom: 20px; background: var(--surface-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; backdrop-filter: blur(12px); transition: border-color 0.2s; }
     .month-section:hover { border-color: rgba(255, 255, 255, 0.15); }
     .month-summary { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; cursor: pointer; user-select: none; background: rgba(17, 24, 39, 0.4); border-bottom: 1px solid transparent; transition: background 0.15s; flex-wrap: wrap; gap: 14px; }
@@ -107,33 +105,20 @@
     .meta-yellow { background: var(--yellow-bg); color: var(--yellow-text); border: 1px solid var(--yellow-border); }
     .meta-blue { font-family: "JetBrains Mono", monospace; color: var(--accent); font-weight: 700; }
 
-    /* Tables with Dedicated Smooth Horizontal Scrolling */
-    .month-content { 
-      display: none; 
-      overflow-x: auto; 
-      -webkit-overflow-scrolling: touch; 
-    }
+    .month-content { display: none; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .month-section.expanded .month-content { display: block; }
-    table { 
-      width: 100%; 
-      min-width: 820px; 
-      border-collapse: collapse; 
-      text-align: left; 
-      font-size: 13.5px; 
-    }
+    table { width: 100%; min-width: 820px; border-collapse: collapse; text-align: left; font-size: 13.5px; }
     th { background: rgba(0, 0, 0, 0.25); color: var(--text-subtle); font-size: 11px; text-transform: uppercase; padding: 12px 18px; border-bottom: 1px solid var(--border); font-weight: 700; letter-spacing: 0.8px; white-space: nowrap; }
     td { padding: 12px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: rgba(255, 255, 255, 0.02); }
     .word-text { font-weight: 800; font-size: 15px; color: #ffffff; letter-spacing: -0.2px; }
 
-    /* Inline Edit Fields */
     .inline-edit { padding: 5px 10px; border: 1px solid transparent; border-radius: 6px; font-size: 13px; color: var(--text-muted); outline: none; background: transparent; transition: 0.15s; width: 100%; max-width: 140px; font-family: inherit; }
     .editable .inline-edit:hover { border-color: var(--border); background: var(--surface); color: var(--text-main); cursor: text; }
     .editable .inline-edit:focus { border-color: var(--primary); background: var(--surface); color: var(--text-main); box-shadow: 0 0 0 2px var(--primary-glow); }
     .readonly .inline-edit { pointer-events: none; }
 
-    /* Evaluation Badges */
     .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 96px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; user-select: none; border: 1px solid transparent; transition: transform 0.1s, opacity 0.15s; }
     .editable .badge { cursor: pointer; }
     .editable .badge:hover { opacity: 0.9; transform: scale(1.02); }
@@ -143,7 +128,6 @@
     .badge-developing { background: var(--yellow-bg); border-color: var(--yellow-border); color: var(--yellow-text); }
     .badge-notyet { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
 
-    /* Status Progress Pills */
     .status-pill { display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; font-family: "JetBrains Mono", monospace; min-width: 80px; border: 1px solid transparent; }
     .status-100 { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
     .status-partial { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue-text); }
@@ -153,7 +137,6 @@
     .btn-del:hover { background: var(--red-bg); }
     .editable .btn-del { display: inline-block; }
 
-    /* Modal Dialog */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; z-index: 100; }
     .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px; max-width: 380px; width: 100%; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
     .modal-title { margin-bottom: 16px; font-size: 18px; font-weight: 800; }
@@ -163,69 +146,22 @@
     .field input:focus { border-color: var(--primary); }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
 
-    /* Mobile Responsive Optimizations */
     @media (max-width: 768px) {
-      body {
-        padding: 16px 12px;
-      }
-      header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 16px;
-        margin-bottom: 20px;
-        padding-bottom: 16px;
-      }
-      header > div:last-child {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        gap: 8px;
-      }
-      .brand-title {
-        font-size: 22px;
-      }
-      .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        margin-bottom: 20px;
-      }
-      .dashboard-grid .kpi-card:last-child {
-        grid-column: span 2;
-      }
-      .kpi-card {
-        padding: 14px;
-      }
-      .kpi-value {
-        font-size: 24px;
-      }
-      .quick-add-panel {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .quick-add-panel input, .quick-add-panel button {
-        width: 100% !important;
-      }
-      .filter-card {
-        padding: 14px;
-        margin-bottom: 20px;
-      }
-      .filter-grid {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .filter-grid > * {
-        width: 100% !important;
-      }
-      .month-summary {
-        padding: 14px 16px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-      .month-meta {
-        gap: 10px;
-        font-size: 12px;
-      }
+      body { padding: 16px 12px; }
+      header { flex-direction: column; align-items: stretch; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; }
+      header > div:last-child { display: flex; flex-direction: column; width: 100%; gap: 8px; }
+      .brand-title { font-size: 22px; }
+      .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+      .dashboard-grid .kpi-card:last-child { grid-column: span 2; }
+      .kpi-card { padding: 14px; }
+      .kpi-value { font-size: 24px; }
+      .quick-add-panel { flex-direction: column; align-items: stretch; }
+      .quick-add-panel input, .quick-add-panel button { width: 100% !important; }
+      .filter-card { padding: 14px; margin-bottom: 20px; }
+      .filter-grid { flex-direction: column; align-items: stretch; }
+      .filter-grid > * { width: 100% !important; }
+      .month-summary { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 10px; }
+      .month-meta { gap: 10px; font-size: 12px; }
     }
   </style>
 </head>
@@ -239,12 +175,12 @@
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
       <div id="authStatusBadge" class="auth-banner auth-public">Public Read-Only</div>
+      <span id="syncIndicator" class="sync-status">Cloud: Syncing...</span>
       <button id="authBtn" class="btn btn-primary" onclick="openLoginModal()">Tutor Unlock</button>
       <button class="btn btn-secondary" onclick="exportData()">Export Backup</button>
     </div>
   </header>
 
-  <!-- Top KPI Grid -->
   <div class="dashboard-grid">
     <div class="kpi-card">
       <div class="kpi-title">Total Words In Syllabus</div>
@@ -255,7 +191,7 @@
       <div class="kpi-value" id="stat-mastered" style="color: var(--green-text);">0</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-title">In Progress (<100%)</div>
+      <div class="kpi-title">In Progress (&lt;100%)</div>
       <div class="kpi-value" id="stat-progress" style="color: var(--yellow-text);">0</div>
     </div>
     <div class="kpi-card">
@@ -269,7 +205,6 @@
     </div>
   </div>
 
-  <!-- Quick Add Bar (Tutor Only) -->
   <div id="tutorAddPanel" class="quick-add-panel">
     <strong>+ Add Vocabulary:</strong>
     <input type="text" id="quickWord" class="input-field" placeholder="Target Word (e.g. apple)" style="flex:1; min-width:140px;">
@@ -278,7 +213,6 @@
     <button class="btn btn-primary" onclick="handleQuickAdd()">Save Entry</button>
   </div>
 
-  <!-- Multi-Filter Deck -->
   <div class="filter-card">
     <div class="filter-grid">
       <input type="text" id="search" class="input-field" placeholder="Type to search word..." style="flex:1; min-width:180px;" oninput="render()">
@@ -289,7 +223,7 @@
 
       <select id="filterStatus" class="filter-select" onchange="render()">
         <option value="all">Status: All</option>
-        <option value="incomplete">Needs Practice (< 100%)</option>
+        <option value="incomplete">Needs Practice (&lt; 100%)</option>
         <option value="mastered">Mastered (100%)</option>
         <option value="notyet">Not Yet Started (0%)</option>
       </select>
@@ -322,11 +256,9 @@
     </div>
   </div>
 
-  <!-- Month Sections Container -->
   <div id="monthsContainer"></div>
 </div>
 
-<!-- Modal Dialog -->
 <div id="loginModal" class="modal">
   <div class="modal-box">
     <h3 class="modal-title">Tutor Authentication</h3>
@@ -346,6 +278,17 @@
 </div>
 
 <script>
+  // Cloud Database Integration (Using your project credentials)
+  const firebaseConfig = {
+    apiKey: "AIzaSyA6V3lQ5Low2ep9PHOY44my5YIuDZp5mVQ",
+    authDomain: "vocbulary-tracker.firebaseapp.com",
+    projectId: "vocbulary-tracker",
+    storageBucket: "vocbulary-tracker.firebasestorage.app",
+    messagingSenderId: "661926405932",
+    appId: "1:661926405932:web:302b9de4093af1a63cee89",
+    measurementId: "G-X3SMJXF5C1"
+  };
+
   const CRED_USER = "virber";
   const CRED_PASS = "zhangyuqi";
   let isTutorLoggedIn = sessionStorage.getItem("tutor_authenticated") === "true";
@@ -375,13 +318,49 @@
     }));
   }
 
-  let stored = localStorage.getItem("vocab_data_v12");
-  let vocabDB = stored ? JSON.parse(stored) : getInitialData();
+  let vocabDB = getInitialData();
   let collapsedState = JSON.parse(localStorage.getItem("vocab_collapsed_v12") || "{}");
+  let db = null;
+  let docRef = null;
+
+  function initCloudSync() {
+    const indicator = document.getElementById("syncIndicator");
+
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      docRef = db.collection("vocabulary").doc("sharedList");
+
+      // Real-time synchronization stream
+      docRef.onSnapshot((doc) => {
+        if (doc.exists && doc.data().words) {
+          vocabDB = doc.data().words;
+        } else {
+          // Push initial data if the collection is brand new
+          docRef.set({ words: vocabDB });
+        }
+        indicator.innerText = "Cloud: Connected (Live)";
+        indicator.style.color = "#34d399";
+        render();
+      }, (error) => {
+        console.error("Firestore sync error:", error);
+        indicator.innerText = "Cloud: Sync Error";
+        indicator.style.color = "#f87171";
+      });
+    } catch (e) {
+      console.error(e);
+      indicator.innerText = "Cloud: Failed";
+      indicator.style.color = "#f87171";
+    }
+  }
 
   function saveToStorage() {
-    localStorage.setItem("vocab_data_v12", JSON.stringify(vocabDB));
     localStorage.setItem("vocab_collapsed_v12", JSON.stringify(collapsedState));
+    localStorage.setItem("vocab_data_v12", JSON.stringify(vocabDB));
+
+    if (docRef) {
+      docRef.set({ words: vocabDB }).catch(err => console.error("Cloud push failed:", err));
+    }
   }
 
   function updateAuthUI() {
@@ -497,14 +476,14 @@
 
   function toggleSection(monthName) {
     collapsedState[monthName] = !collapsedState[monthName];
-    saveToStorage();
+    localStorage.setItem("vocab_collapsed_v12", JSON.stringify(collapsedState));
     render();
   }
 
   function expandAll(expand) {
     const months = [...new Set(vocabDB.map(d => d.month))];
     months.forEach(m => collapsedState[m] = !expand);
-    saveToStorage();
+    localStorage.setItem("vocab_collapsed_v12", JSON.stringify(collapsedState));
     render();
   }
 
@@ -726,7 +705,7 @@
   }
 
   updateAuthUI();
-  render();
+  initCloudSync();
 </script>
 </body>
 </html>
